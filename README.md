@@ -14,12 +14,14 @@ This separation keeps collection concerns away from the API layer and follows a 
 **Current version: `v0.1`**
 
 Implemented:
+
 - Worker ingestion pipeline (requests + pandas)
 - Data normalization and logging
 - Multi-symbol ingestion
 - File-based persistence (Excel)
 
 Planned:
+
 - PostgreSQL persistence (SQLAlchemy)
 - FastAPI endpoints for data access
 - Docker-based environment
@@ -32,6 +34,7 @@ This project is designed as a small data platform rather than a single-script AP
 ### Architectural decisions
 
 #### 1. Worker and API are separated
+
 The ingestion process lives in `worker/`, outside the FastAPI domain modules.
 
 **Why?**
@@ -44,6 +47,7 @@ This separation reduces coupling and makes future scaling easier.
 Real-world analogy: the worker is the **factory line**, while FastAPI is the **storefront**.
 
 #### 2. Layered backend structure inside `app/`
+
 The FastAPI application follows a layered design:
 
 - `api/`: routes and dependencies
@@ -58,6 +62,7 @@ This keeps transport concerns, business rules, and data access isolated.
 Trade-off: slightly more folders and ceremony now, but much better maintainability as the project grows.
 
 #### 3. `requests` + `pandas` in the worker
+
 The ingestion code uses:
 
 - `requests` for external HTTP communication
@@ -69,25 +74,30 @@ The ingestion code uses:
 - `pandas` is excellent for schema normalization and transformation steps
 
 Trade-off:
+
 - simpler than async/event-driven ingestion
 - less scalable than a queue-based pipeline
 - but easier to reason about and debug at this stage
 
 #### 4. Temporary file persistence before database persistence
+
 The worker currently writes transformed data to `data/trades.xlsx`.
 
 **Why?**
 This is a bootstrap strategy:
+
 - validate extraction
 - validate transformation
 - inspect output quickly
 - reduce moving parts early
 
 Trade-off:
+
 - Excel is useful for validation and demos
 - PostgreSQL is the correct target for querying, indexing, and API exposure
 
 #### 5. Docker as environment boundary
+
 Docker is part of the intended architecture because the project is moving toward:
 
 - reproducible local development
