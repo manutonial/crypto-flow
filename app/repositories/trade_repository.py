@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import CursorResult, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,10 +40,10 @@ class TradeRepository:
                 )
             )
 
-            await self._session.execute(stmt)
+            result: CursorResult = await self._session.execute(stmt)  # type: ignore
             await self._session.commit()
             
-            return len(trades)
+            return result.rowcount
         except SQLAlchemyError:
             await self._session.rollback()
             raise
